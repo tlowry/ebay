@@ -95,6 +95,9 @@ func (pool *Pool) serve() {
 
 			pool.Out <- item
 			log.Println("Pool return complete")
+
+		default:
+			time.Sleep(time.Millisecond * 100)
 		}
 
 	}

@@ -13,14 +13,14 @@ import (
 )
 
 func init() {
-	http.HandleFunc("/task/showlogs", loghandler)
+	http.HandleFunc("/task/showlogs", handler)
 }
 
 const recordsPerPage = 5
 
-func loghandler(w http.ResponseWriter, r *http.Request) {
+func handler(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
-
+	w.Header().Set("Content-Type", "text/html")
 	// Set up a data structure to pass to the HTML template.
 	var data struct {
 		Records []*log.Record
@@ -55,8 +55,7 @@ func loghandler(w http.ResponseWriter, r *http.Request) {
 			data.Offset = base64.URLEncoding.EncodeToString(rec.Offset)
 		}
 	}
-	w.Header().Set("Content-Type", "text/html")
-	w.Header().Set("charset", "utf-8")
+
 	// Render the template to the HTTP response.
 	if err := tmpl.Execute(w, data); err != nil {
 		c.Errorf("Rendering template: %v", err)

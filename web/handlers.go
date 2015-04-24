@@ -35,9 +35,10 @@ func refreshTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	searcher := app.NewTierSearch(&conf, ctx)
+
+	fmt.Fprint(w, "Refresh task Running now")
 	searcher.RunSearch()
 
-	fmt.Fprint(w, "Refresh task complete")
 }
 
 func searchTask(w http.ResponseWriter, r *http.Request) {

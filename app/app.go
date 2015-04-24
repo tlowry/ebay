@@ -29,7 +29,7 @@ func (ts *TierSearch) RunSearch() {
 	ts.ctx.Infof("Looking for best card under %f", price)
 
 	searchGroup := pipeline.NewStageGroup()
-	pool := util.NewPool(5)
+	pool := util.NewPool(1)
 	pool.MakeFunc = func() interface{} {
 		cl := urlfetch.Client(ts.ctx)
 		return cl
@@ -47,7 +47,7 @@ func (ts *TierSearch) RunSearch() {
 			searchGroup.AddInstance(srch)
 		}
 
-		if i == 5 {
+		if i == 2 {
 			break
 		}
 

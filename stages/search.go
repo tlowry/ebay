@@ -6,7 +6,6 @@ import (
 	"github.com/tlowry/ebay/util"
 	"github.com/tlowry/grawl/browser"
 	"github.com/tlowry/grawl/element"
-	"log"
 	"net/http"
 	"strconv"
 	"sync"
@@ -37,27 +36,7 @@ func (this *SearchStage) Init() {
 	this.Stage.Init()
 }
 
-func (this *SearchStage) HandleIn() {
-	this.GetContext().Infof("About to borrow a client")
-	client := this.httpPool.Borrow(time.Second * 5).(*http.Client)
-	this.GetContext().Infof("Client Borrowed")
-	defer func() {
-		if client != nil {
-			this.GetContext().Infof("About to return client")
-			this.httpPool.Return(client)
-			this.GetContext().Infof("Client returned")
-		} else {
-			this.GetContext().Infof("Client Borrowed was nil")
-		}
-		this.wg.Done()
-
-		e := recover()
-		if e != nil {
-			this.GetContext().Infof("Hit an error in search stage")
-			this.GetContext().Errorf("%s", e)
-		}
-	}()
-
+func (this *SearchStage) MakeRequest(client *http.Client) {
 	if client != nil {
 		conn := browser.NewBrowserWithClient(client)
 		conn.SetUserAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36")
@@ -80,8 +59,9 @@ func (this *SearchStage) HandleIn() {
 			// page number _pgn=2
 		*/
 
+		this.GetContext().Infof("Loading page")
 		page := conn.Load("http://www.ebay.ie/sch/ebayadvsearch/")
-
+		this.GetContext().Infof("Page Loaded")
 		// Save the start time on page load to minimise inaccuracy
 		startTime := time.Now()
 
@@ -109,7 +89,9 @@ func (this *SearchStage) HandleIn() {
 		form.SetField("_dmd", "1")
 		form.SetField("_ipg", "200")
 
+		this.GetContext().Infof("Submitting form")
 		page = conn.SubmitForm(form)
+		this.GetContext().Infof("Form Submitted")
 		//page.SaveToFile("./output/auctions-" + this.term + ".html")
 
 		// Only look in search results not related items
@@ -118,6 +100,8 @@ func (this *SearchStage) HandleIn() {
 		auctions := results.AllByClass("sresult")
 
 		count := 0
+
+		this.GetContext().Infof("Looking at auctions")
 		for _, result := range auctions {
 
 			listingId := result.GetAttribute("listingid")
@@ -137,7 +121,7 @@ func (this *SearchStage) HandleIn() {
 			price, err := strconv.ParseFloat(prcStr, 64)
 
 			if err != nil {
-				log.Println(err.Error())
+				this.GetContext().Errorf("Error getting item price %s ", err.Error())
 			}
 
 			e := pipeline.EbayItem{}
@@ -146,14 +130,14 @@ func (this *SearchStage) HandleIn() {
 			endingTime := result.ByClass("timeMs")
 
 			if endingTime != nil {
-				log.Println("endingTime ok")
+				this.GetContext().Infof("endingTime ok")
 				timems := endingTime.GetAttribute("timems")
 				timeStr := util.SanitizeNum(timems)
 
 				timeMillis, timeErr := strconv.ParseInt(timeStr, 10, 64)
 
 				if timeErr != nil {
-					log.Println(timeErr.Error())
+					this.GetContext().Errorf("Error converting ending time", timeErr.Error())
 				} else {
 					millis := time.Duration(timeMillis)
 					expiry := startTime.Add(time.Millisecond * millis)
@@ -169,15 +153,41 @@ func (this *SearchStage) HandleIn() {
 			e.Price = price
 			e.Tier = this.Tier
 
-			log.Println("Search found ", e)
+			this.GetContext().Infof("Search found ", e)
 			this.Out <- e
 
 			count++
 		}
-		log.Println("searchStage::", this.term, " found ", count, " items")
+		this.GetContext().Infof("searchStage::", this.term, " found ", count, " items")
 	} else {
 		this.GetContext().Infof("Failed to get http client")
 	}
+}
+
+func (this *SearchStage) HandleIn() {
+	this.GetContext().Infof("About to borrow a client")
+	client := this.httpPool.Borrow(time.Second * 5).(*http.Client)
+	this.GetContext().Infof("Client Borrowed")
+	defer func() {
+		e := recover()
+		if e != nil {
+			this.GetContext().Errorf("Hit an error in search stage %s", e)
+
+		}
+		if client != nil {
+			this.GetContext().Infof("About to return client")
+			this.httpPool.Return(client)
+			this.GetContext().Infof("Client returned")
+		} else {
+			this.GetContext().Infof("Client Borrowed was nil")
+		}
+		this.wg.Done()
+
+	}()
+
+	this.GetContext().Infof("Making Request")
+	this.MakeRequest(client)
+	this.GetContext().Infof("Request completed normally")
 
 }
 
