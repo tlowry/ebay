@@ -1,4 +1,4 @@
 cron:
 - description: load latest products from merchants and store them in a db
   url: /tasks/refreshmerchants
-  schedule: every 15 minutes
+  schedule: every 2 hours

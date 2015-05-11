@@ -44,10 +44,6 @@ func (ts *TierSearch) RunSearch() {
 			searchGroup.AddInstance(srch)
 		}
 
-		if i == 2 {
-			break
-		}
-
 		/*
 			Todo different types of search
 			use different filter criteria.
