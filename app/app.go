@@ -25,11 +25,8 @@ func NewTierSearch(conf *util.TierConf, ctx appengine.Context) *TierSearch {
 }
 
 func (ts *TierSearch) RunSearch() {
-	price := ts.conf.MaxPrice
-	ts.ctx.Infof("Looking for best card under %f", price)
-
 	searchGroup := pipeline.NewStageGroup()
-	pool := util.NewPool(1)
+	pool := util.NewPool(6)
 	pool.MakeFunc = func() interface{} {
 		cl := urlfetch.Client(ts.ctx)
 		return cl

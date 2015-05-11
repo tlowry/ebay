@@ -8,9 +8,7 @@ import (
 
 type TierConf struct {
 	Tiers     [][]string
-	MaxPrice  float64
 	OutputDir string
-	LogDir    string
 }
 
 func SanitizeNum(str string) string {

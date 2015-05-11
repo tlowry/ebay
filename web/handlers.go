@@ -28,7 +28,7 @@ func refreshTask(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(fileBytes, &conf)
 	util.FailOnErr("Failed to parse json", err)
 
-	ctx.Infof("About to run tiers ", conf.MaxPrice)
+	ctx.Infof("About to run tiers ")
 
 	if len(conf.Tiers) < 1 {
 		util.Fail("ERROR: no tiers in json")
@@ -89,7 +89,7 @@ func searchTask(w http.ResponseWriter, r *http.Request) {
 		count++
 	}
 
-	text += "</tbody></table></body></html>"
+	text += "</tbody></table><a href=\"/\">Home</a></body></html>"
 	fmt.Fprint(w, text)
 }
 

@@ -37,24 +37,20 @@ func (fs *FilterStage) HandleIn() {
 	if err == nil {
 		for item := range fs.In {
 			log.Println("filter recvd ", item)
-			if item.Price > fs.conf.MaxPrice {
-				log.Println("Filtering out item, price too high ", item.Price, " : ", item.Description)
-			} else {
-				descWords := strings.Split(item.Description, " ")
 
-				_, inx, _ := classifier.ProbScores(descWords)
-				class := classifier.Classes[inx]
+			descWords := strings.Split(item.Description, " ")
 
-				switch class {
-				case Wanted:
-					log.Println("FilterStage: ", item.Description, " is wanted")
-					fs.Out <- item
-				case UnWanted:
-					log.Println("FilterStage: ", item.Description, " is unwanted")
-				default:
-					log.Println("FilterStage: ", item.Description, " is unknown class: ", class)
-				}
+			_, inx, _ := classifier.ProbScores(descWords)
+			class := classifier.Classes[inx]
 
+			switch class {
+			case Wanted:
+				log.Println("FilterStage: ", item.Description, " is wanted")
+				fs.Out <- item
+			case UnWanted:
+				log.Println("FilterStage: ", item.Description, " is unwanted")
+			default:
+				log.Println("FilterStage: ", item.Description, " is unknown class: ", class)
 			}
 
 		}

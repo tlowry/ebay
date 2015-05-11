@@ -10,6 +10,8 @@ import (
 
 	"appengine"
 	"appengine/log"
+	"bytes"
+	"golang.org/x/text/encoding"
 )
 
 func init() {
@@ -19,8 +21,10 @@ func init() {
 const recordsPerPage = 5
 
 func handler(w http.ResponseWriter, r *http.Request) {
+
 	c := appengine.NewContext(r)
-	w.Header().Set("Content-Type", "text/html")
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
 	// Set up a data structure to pass to the HTML template.
 	var data struct {
 		Records []*log.Record
@@ -49,7 +53,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			c.Errorf("Reading log records: %v", err)
 			break
 		}
+		for _, msg := range rec.AppLogs {
 
+			buf := bytes.NewBufferString("")
+			enc := encoding.Encoding.NewEncoder(encoding.Replacement)
+			enc.Transform(buf.Bytes(), []byte(msg.Message), false)
+			msg.Message = buf.String()
+		}
 		data.Records = append(data.Records, rec)
 		if i == recordsPerPage-1 {
 			data.Offset = base64.URLEncoding.EncodeToString(rec.Offset)
@@ -70,7 +80,7 @@ var tmpl = template.Must(template.New("").Parse(`
                         <h3>App Logs:</h3>
                         <ul>
                         {{range .}}
-                                <li>{{.Time}}: {{.Message}}</li>
+                                <li><pre>{{.Time}}: {{.Message}}</pre></li>
                         <{{end}}
                         </ul>
                 {{end}}

@@ -166,17 +166,17 @@ func (this *SearchStage) MakeRequest(client *http.Client) {
 
 func (this *SearchStage) HandleIn() {
 	this.GetContext().Infof("About to borrow a client")
-	client := this.httpPool.Borrow(time.Second * 5).(*http.Client)
-	this.GetContext().Infof("Client Borrowed")
+
+	cl := this.httpPool.Borrow(time.Second * 5)
 	defer func() {
 		e := recover()
 		if e != nil {
 			this.GetContext().Errorf("Hit an error in search stage %s", e)
 
 		}
-		if client != nil {
+		if cl != nil {
 			this.GetContext().Infof("About to return client")
-			this.httpPool.Return(client)
+			this.httpPool.Return(cl)
 			this.GetContext().Infof("Client returned")
 		} else {
 			this.GetContext().Infof("Client Borrowed was nil")
@@ -185,9 +185,17 @@ func (this *SearchStage) HandleIn() {
 
 	}()
 
-	this.GetContext().Infof("Making Request")
-	this.MakeRequest(client)
-	this.GetContext().Infof("Request completed normally")
+	if cl != nil {
+		client := cl.(*http.Client)
+
+		this.GetContext().Infof("Client Borrowed")
+
+		this.GetContext().Infof("Making Request")
+		this.MakeRequest(client)
+		this.GetContext().Infof("Request completed normally")
+	} else {
+		this.GetContext().Infof("Failed to borrow a http client, received nil instead")
+	}
 
 }
 
