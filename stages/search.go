@@ -41,27 +41,10 @@ func (this *SearchStage) MakeRequest(client *http.Client) {
 		conn := browser.NewBrowserWithClient(client)
 		conn.SetUserAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36")
 
-		/*
-			page := conn.Load("http://www.ebay.ie/")
-			form := page.ById("gh-f").(*element.Form)
-			util.FailOnNil("searchStage::"+this.term+" Couldn't find ebay search form", form)
-
-			form.SetField("_from", "R40")
-			form.SetField("_trksid", "p2050601.m570.l1313")
-			form.SetField("_nkw", this.term)
-
-			// 200 results per page
-			form.SetField("_ipg", "200")
-
-			// category all
-			form.SetField("_sacat", "0")
-
-			// page number _pgn=2
-		*/
-
 		this.GetContext().Infof("Loading page")
 		page := conn.Load("http://www.ebay.ie/sch/ebayadvsearch/")
 		this.GetContext().Infof("Page Loaded")
+
 		// Save the start time on page load to minimise inaccuracy
 		startTime := time.Now()
 
@@ -167,7 +150,8 @@ func (this *SearchStage) MakeRequest(client *http.Client) {
 func (this *SearchStage) HandleIn() {
 	this.GetContext().Infof("About to borrow a client")
 
-	cl := this.httpPool.Borrow(time.Second * 5)
+	// Wait up to 10 seconds for a client
+	cl := this.httpPool.Borrow(time.Second * 10)
 	defer func() {
 		e := recover()
 		if e != nil {
@@ -189,8 +173,6 @@ func (this *SearchStage) HandleIn() {
 		client := cl.(*http.Client)
 
 		this.GetContext().Infof("Client Borrowed")
-
-		this.GetContext().Infof("Making Request")
 		this.MakeRequest(client)
 		this.GetContext().Infof("Request completed normally")
 	} else {

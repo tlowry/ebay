@@ -43,19 +43,6 @@ func (ts *TierSearch) RunSearch() {
 			srch.Tier = strconv.Itoa(i)
 			searchGroup.AddInstance(srch)
 		}
-
-		/*
-			Todo different types of search
-			use different filter criteria.
-
-			e.g best perf for €200 =
-			search from tier 1 in descending order.
-
-			if we find an item below €200, end the search
-			at that tier
-
-		*/
-
 	}
 
 	// Add the group of search stages to the pipeline
@@ -69,8 +56,6 @@ func (ts *TierSearch) RunSearch() {
 	ts.pipe.AddBack(filter)
 
 	ts.ctx.Infof("Filter Started")
-	//persist := stages.NewPersistStage(ts.ctx)
-	//ts.pipe.AddBack(persist)
 
 	ds := stages.NewDataStoreStage(ts.ctx)
 	ts.pipe.AddBack(ds)

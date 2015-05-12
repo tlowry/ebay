@@ -1,0 +1,19 @@
+{{define "page"}}
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="files/js/jquery-ui-1.11.4/jquery-ui.css">
+	{{.CSS}}
+	
+	<script src="files/js/jquery-2.1.4.js"></script>
+	<script src="files/js/jquery-ui-1.11.4/jquery-ui.js"></script>
+	{{.JS}}
+	<title>{{.Title}}</title>
+</head>
+<body>
+	{{template "navbar"}}
+	<div id="heading">{{.Heading}}</div>
+	<div id="content">{{.Content}}</div>
+</body>
+{{end}}

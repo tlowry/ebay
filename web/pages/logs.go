@@ -20,7 +20,7 @@ func init() {
 
 const recordsPerPage = 5
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func logsHandler(w http.ResponseWriter, r *http.Request) {
 
 	c := appengine.NewContext(r)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
