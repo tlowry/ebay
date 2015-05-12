@@ -1,0 +1,379 @@
+{
+   "tiers":[
+      [
+         "GeForce GTX Titan Z",
+         "Radeon R9 295X2"
+      ],
+      [
+         "GeForce GTX 690",
+         "Radeon HD 7990"
+      ],
+      [
+         "GeForce GTX 780 Ti",
+         "GeForce GTX 980",
+         "GeForce GTX Titan Black"
+      ],
+      [
+         "GeForce GTX 780",
+         "GeForce GTX 970",
+         "GeForce GTX Titan",
+         "Radeon R9 290",
+         "Radeon R9 290X"
+      ],
+      [
+         "GeForce GTX 590",
+         "GeForce GTX 680",
+         "GeForce GTX 770",
+         "Radeon HD 6990",
+         "Radeon HD 7970 GHz",
+         "Radeon R9 280X"
+      ],
+      [
+         "GeForce GTX 580",
+         "GeForce GTX 670",
+         "GeForce GTX 960",
+         "Radeon HD 5970",
+         "Radeon HD 7870 LE XT",
+         "Radeon HD 7950",
+         "Radeon R9 280",
+		 "Radeon R9 285"
+      ],
+      [
+         "GeForce GTX 660 Ti",
+         "GeForce GTX 760 ",
+         "Radeon HD 7870",
+         "Radeon R9 270",
+         "Radeon R9 270X"
+      ],
+      [
+         "GeForce GTX 295",
+         "GeForce GTX 480",
+         "GeForce GTX 570",
+         "GeForce GTX 660",
+         "Radeon HD 4870 X2",
+         "Radeon HD 6970",
+         "Radeon HD 7850",
+         "Radeon R7 265"
+      ],
+      [
+         "GeForce GTX 470",
+         "GeForce GTX 560 Ti",
+         "GeForce GTX 560 Ti 448 Core",
+         "GeForce GTX 650 Ti Boost",
+         "GeForce GTX 750 Ti",
+         "Radeon HD 4850 X2",
+         "Radeon HD 5870",
+         "Radeon HD 6950",
+         "Radeon R7 260X"
+      ],
+      [
+         "GeForce GTX 560",
+         "GeForce GTX 650 Ti",
+         "GeForce GTX 750",
+         "Radeon HD 5850",
+         "Radeon HD 6870",
+         "Radeon HD 7790"
+      ],
+      [
+         "GeForce 9800 GX2",
+         "GeForce GTX 285",
+         "GeForce GTX 460 256 bit",
+         "GeForce GTX 465",
+         "Radeon HD 6850",
+         "Radeon HD 7770",
+         "Radeon R7 260"
+      ],
+      [
+         "GeForce GTX 260",
+         "GeForce GTX 275",
+         "GeForce GTX 280",
+         "GeForce GTX 460 192 bit",
+         "GeForce GTX 460 SE",
+         "GeForce GTX 550 Ti",
+         "GTX 560 SE",
+         "GeForce GTX 650",
+         "GeForce GT 740 GDDR5",
+         "Radeon HD 4870",
+         "Radeon HD 5770",
+         "Radeon HD 4890",
+         "Radeon HD 5830",
+         "Radeon HD 6770",
+         "Radeon HD 6790",
+         "Radeon HD 7750 GDDR5",
+         "Radeon R7 250 GDDR5",
+         "Radeon R7 250E"
+      ],
+      [
+         "GeForce 8800 Ultra",
+         "GeForce 9800 GTX",
+         "GeForce 9800 GTX+",
+         "GeForce GTS 250",
+		 "GeForce GTS 450",
+         "Radeon HD 3870 X2",
+         "Radeon HD 4850",
+         "Radeon HD 5750",
+         "Radeon HD 6750",
+         "Radeon HD 7750 DDR3",
+         "Radeon R7 250 DDR3"
+      ],
+      [
+         "GeForce 8800 GTX",
+         "GeForce 8800 GTS 512MB",
+         "GeForce GT 545 GDDR5",
+         "GeForce GT 730 64 bit GDDR5",
+         "Radeon HD 4770"
+      ],
+      [
+         "GeForce 8800 GT 512MB",
+         "GeForce 9800 GT",
+         "GeForce GT 545 DDR3",
+         "GeForce GT 640 DDR3",
+		 "GeForce GT 740 DDR3",
+         "Radeon HD 4830",
+         "Radeon HD 5670",
+         "Radeon HD 6670 GDDR5",
+         "Radeon HD 7730 GDDR5"
+      ],
+      [
+         "GeForce 8800 GTS 640MB",
+         "GeForce 9600 GT",
+         "GeForce GT 240 GDDR5",
+         "Radeon HD 2900 XT",
+         "Radeon HD 3870",
+         "Radeon HD 5570 GDDR5",
+         "Radeon HD 6570 GDDR5"
+      ],
+      [
+         "GeForce 8800 GS",
+         "GeForce 9600 GSO",
+         "GeForce GT 240 DDR3",
+         "Radeon HD 3850 512MB",
+         "Radeon HD 4670",
+         "Radeon HD 5570 DDR3",
+         "Radeon HD 6570 DDR3",
+		 "Radeon HD 6670 DDR3",
+		 "Radeon HD 7730 DDR3",
+		 "Radeon R7 240"
+      ],
+      [
+         "GeForce 8800 GT 256MB",
+         "GeForce 8800 GTS 320MB",
+         "GeForce GT 440 GDDR5",
+         "GeForce GT630 GDDR5",
+         "GeForce GT 730 128 bit GDDR5",
+         "Radeon HD 2900PRO",
+         "Radeon HD 3850 256MB",
+         "Radeon HD 5550 GDDR5"
+      ],
+      [
+         "GeForce 7950 GX2",
+         "GeForce GT 440 DDR3",
+         "GeForce GT 630 DDR3",
+         "GeForce GT 730 128 bit DDR3",
+         "Radeon X1950 XTX",
+         "Radeon HD 4650 DDR3",
+         "Radeon HD 5550 DDR3"
+      ],
+      [
+         "GeForce 7800 GTX 512",
+         "GeForce 7900 GTO",
+         "GeForce 7900 GTX",
+         "GeForce GT 430",
+		 "GeForce GT 530",
+         "Radeon X1900XT",
+         "Radeon X1950XT",
+         "Radeon X1900XTX"
+      ],
+      [
+         "GeForce 7800 GTX",
+         "GeForce 7900 GT",
+         "GeForce 7950 GT",
+         "GeForce GT 220 DDR3",
+         "Radeon X1800XT",
+         "Radeon X1900 AIW",
+         "Radeon X1900 GT",
+         "Radeon X1950 Pro",
+		 "Radeon HD 2900 GT",
+		 "Radeon HD 5550",
+		 "Radeon HD 7560D"
+      ],
+      [
+         "GeForce 7800 GT",
+         "GeForce 7900GS",
+         "GeForce 8600 GTS",
+         "GeForce 9500 GT GDDR3",
+		 "GeForce GT 220 DDR2",
+         "Radeon X1800 XL",
+         "Radeon X1950 GT",
+         "Radeon HD 4650 DDR2",
+         "Radeon HD 6450",
+		 "Radeon R5 230"
+      ],
+      [
+         "GeForce 6800 Ultra",
+         "GeForce 7600GT",
+         "GeForce 7800GS",
+         "GeForce 8600 GS",
+		 "GeForce 8600 GT GDDR3",
+		 "GeForce 9500 GT DDR2",
+         "X800XT PE",
+         "X850XT PE",
+         "Radeon X1650 XT",
+         "Radeon X1800 GTO",
+		 "Radeon HD 2600 XT",
+		 "Radeon HD 3650 DDR3",
+		 "Radeon HD 3670"
+      ],
+      [
+         "GeForce 6800 GT",
+         "GeForce 6800 GS PCIe",
+         "GeForce 8600 GT DDR2",
+         "GeForce GT 520",
+         "Radeon X800 XL",
+         "Radeon X800 GTO 2",
+		 "Radeon X800 GTO 16",
+         "Radeon HD 2600 Pro",
+         "Radeon HD 3650 DDR2"
+      ],
+      [
+         "GeForce 6800 GS AGP",
+         "Radeon X800 GTO 256MB",
+         "Radeon X800 Pro",
+         "Radeon X850Pro",
+         "Radeon X1650 GT"
+      ],
+      [
+         "GeForce 6800",
+         "GeForce 7300 GT GDDR3",
+         "GeForce 7600 GS",
+         "Radeon X800",
+         "Radeon X800 GTO 128MB",
+         "Radeon X1600 XT",
+         "Radeon X1650 Pro"
+      ],
+      [
+         "GeForce 6600 GT",
+         "GeForce 6800 LE",
+         "GeForce 6800 XT",
+         "GeForce 7300 GT DDR2",
+		 "GeForce 8500 GT",
+		 "GeForce 9400 GT",
+         "Radeon 9800 XT",
+         "Radeon X700 PRO",
+         "Radeon X800 GT",
+         "Radeon X800 SE",
+         "Radeon X1300 XT",
+         "Radeon X1600 PRO",
+         "Radeon HD 2400 XT",
+         "Radeon HD 4350",
+         "Radeon HD 4550",
+         "Radeon HD 5450"
+      ],
+      [
+         "GeForce FX 5900",
+         "GeForce FX 5900 Ultra",
+         "GeForce FX 5950 Ultra",
+         "GeForce 6600 128 bit",
+         "Radeon 9700",
+         "Radeon 9700 PRO",
+         "Radeon 9800",
+         "Radeon 9800 PRO",
+         "Radeon X700",
+         "Radeon X1300 Pro",
+         "Radeon X1550",
+         "Radeon HD 2400 Pro"
+      ],
+      [
+         "GeForce FX 5800 Ultra",
+         "GeForce FX 5900XT",
+         "Radeon 9500 Pro",
+         "Radeon 9600XT",
+         "Radeon 9800 Pro 128 bit",
+         "Radeon X600 XT",
+         "Radeon X1050 128 bit"
+      ],
+      [
+         "GeForce4 Ti 4600",
+         "GeForce4 Ti 4800 SE",
+         "GeForce FX 5700 Ultra",
+         "GeForce 6200",
+         "GeForce 8300GS",
+         "GeForce 8400 GS",
+		 "GeForce 210",
+		 "GeForce 310",
+         "Radeon 9600 Pro",
+         "RADEON 9800 LE",
+         "Radeon X600 PRO",
+         "Radeon HD 2300"
+      ],
+      [
+         "GeForce4 Ti 4200",
+         "GeForce4 Ti 4400",
+         "GeForce4 Ti 4800 SE",
+         "GeForce FX 5600 Ultra",
+         "GeForce FX 5700",
+         "GeForce 6600 64 bit",
+         "GeForce 7300GS",
+         "Radeon 9500",
+         "Radeon 9550",
+         "Radeon 9600",
+         "Radeon X300",
+         "Radeon X1050 64 bit"
+      ],
+      [
+         "GeForce3 Ti 500",
+         "GeForce FX 5200 Ultra",
+         "GeForce FX 5600",
+         "GeForce FX 5700LE",
+         "GeForce 6200 TC",
+         "GeForce 6600 LE",
+         "GeForce 7200 GS",
+         "GeForce 7300 LE",
+         "GeForce 8500",
+         "Radeon 9100",
+         "Radeon 9000 Pro",
+         "Radeon 9600LE",
+         "RADEON X300 SE",
+         "Radeon X1150"
+      ],
+      [
+         "GeForce3",
+         "Geforce3 Ti200",
+         "GeForce FX 5200 128 bit",
+         "GeForce FX 5500",
+         "Radeon 9000",
+         "Radeon 9200",
+         "Radeon 9250"
+      ],
+      [
+         "GeForce FX 5200 64 bit",
+         "Radeon 9200 SE"
+      ],
+      [
+         "GeForce2 GTS",
+         "GeForce4 MX 440",
+         "GeForce2 Ultra",
+         "GeForce2 Ti",
+         "GeForce2 Ti 200",
+         "Radeon 7500"
+      ],
+      [
+         "GeForce 256",
+         "GeForce2 MX200",
+         "GeForce4 MX 420",
+         "GeForce2 MX400",
+         "Radeon SDR",
+         "Radeon LE",
+         "Radeon DDR",
+         "Radeon 7000",
+         "Radeon 7200"
+      ],
+      [
+         "RIVA TNT",
+         "ATI Rage 128",
+         "Intel740"
+      ]
+   ],
+	"OutputDir" : "./output"
+
+}
