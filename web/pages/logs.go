@@ -15,7 +15,7 @@ import (
 )
 
 func init() {
-	http.HandleFunc("/task/showlogs", handler)
+	http.HandleFunc("/admin/logs", logsHandler)
 }
 
 const recordsPerPage = 5
@@ -66,10 +66,20 @@ func logsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	var b []byte
+	buf := bytes.NewBuffer(b)
+
 	// Render the template to the HTTP response.
-	if err := tmpl.Execute(w, data); err != nil {
+	if err := tmpl.Execute(buf, data); err != nil {
 		c.Errorf("Rendering template: %v", err)
 	}
+
+	page := Page{}
+	page.Content = template.HTML(string(buf.Bytes()))
+
+	var pageTempl = template.Must(template.ParseGlob("pages/common/*"))
+	pageTempl.ExecuteTemplate(w, "page", page)
+
 }
 
 var tmpl = template.Must(template.New("").Parse(`

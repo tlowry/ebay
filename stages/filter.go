@@ -2,6 +2,7 @@ package stages
 
 import (
 	"appengine"
+	"appengine/datastore"
 	"github.com/jbrukh/bayesian"
 	"github.com/tlowry/ebay/pipeline"
 	"github.com/tlowry/ebay/util"
@@ -38,19 +39,30 @@ func (fs *FilterStage) HandleIn() {
 		for item := range fs.In {
 			log.Println("filter recvd ", item)
 
-			descWords := strings.Split(item.Description, " ")
+			q := datastore.NewQuery("EbayItem").Filter("ListingId =", item.ListingId).Limit(1)
+			res := q.Run(fs.GetContext())
 
-			_, inx, _ := classifier.ProbScores(descWords)
-			class := classifier.Classes[inx]
+			var oldItem *pipeline.EbayItem
+			res.Next(oldItem)
 
-			switch class {
-			case Wanted:
-				log.Println("FilterStage: ", item.Description, " is wanted")
-				fs.Out <- item
-			case UnWanted:
-				log.Println("FilterStage: ", item.Description, " is unwanted")
-			default:
-				log.Println("FilterStage: ", item.Description, " is unknown class: ", class)
+			if oldItem != nil {
+				descWords := strings.Split(item.Description, " ")
+
+				_, inx, _ := classifier.ProbScores(descWords)
+				class := classifier.Classes[inx]
+
+				switch class {
+				case Wanted:
+					log.Println("FilterStage: ", item.Description, " is wanted")
+					fs.Out <- item
+				case UnWanted:
+					log.Println("FilterStage: ", item.Description, " is unwanted")
+				default:
+					log.Println("FilterStage: ", item.Description, " is unknown class: ", class)
+				}
+
+			} else {
+				log.Println("FilterStage: ", item.Description, "  already in db")
 			}
 
 		}
