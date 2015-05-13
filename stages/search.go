@@ -31,156 +31,159 @@ func NewSearchStage(term string, wg *sync.WaitGroup, pool *util.Pool, ctx appeng
 	return &search
 }
 
-func (this *SearchStage) Init() {
-	this.SetName("SearchStage")
-	this.Stage.Init()
+func (search *SearchStage) Init() {
+	search.SetName("SearchStage")
+	search.Stage.Init()
 }
 
-func (this *SearchStage) MakeRequest(client *http.Client) {
+func (search *SearchStage) MakeRequest(client *http.Client) {
 	if client != nil {
 		conn := browser.NewBrowserWithClient(client)
 		conn.SetUserAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36")
 
-		this.GetContext().Infof("Loading page")
+		search.GetContext().Infof("Loading page")
 		page := conn.Load("http://www.ebay.ie/sch/ebayadvsearch/")
-		this.GetContext().Infof("Page Loaded")
+		search.GetContext().Infof("Page Loaded")
 
 		// Save the start time on page load to minimise inaccuracy
 		startTime := time.Now()
 
 		form := page.ById("adv_search_from").(*element.Form)
-		util.FailOnNil("searchStage::"+this.term+" Couldn't find ebay search form", form)
+		if form == nil {
+			search.GetContext().Errorf("searchStage::%s Couldn't find ebay search form", search.term)
+		} else {
+			form.ClearFields()
 
-		form.ClearFields()
+			form.SetField("_nkw", search.term)
+			form.SetField("_in_kw", "1")
+			form.SetField("_ex_kw", "")
+			form.SetField("_sacat", "0")
+			form.SetField("_udlo", "")
+			form.SetField("_udhi", "")
+			form.SetField("_ftrt", "901")
+			form.SetField("_ftrv", "1")
+			form.SetField("_sabdlo", "")
+			form.SetField("_sabdhi", "")
+			form.SetField("_samilow", "")
+			form.SetField("_samihi", "0")
+			form.SetField("_sadis", "10")
+			form.SetField("_fpos", "")
+			form.SetField("LH_SALE_CURRENCY", "0")
+			form.SetField("_sop", "12")
+			form.SetField("_dmd", "1")
+			form.SetField("_ipg", "200")
 
-		form.SetField("_nkw", this.term)
-		form.SetField("_in_kw", "1")
-		form.SetField("_ex_kw", "")
-		form.SetField("_sacat", "0")
-		form.SetField("_udlo", "")
-		form.SetField("_udhi", "")
-		form.SetField("_ftrt", "901")
-		form.SetField("_ftrv", "1")
-		form.SetField("_sabdlo", "")
-		form.SetField("_sabdhi", "")
-		form.SetField("_samilow", "")
-		form.SetField("_samihi", "")
-		form.SetField("_sadis", "10")
-		form.SetField("_fpos", "")
-		form.SetField("LH_SALE_CURRENCY", "0")
-		form.SetField("_sop", "12")
-		form.SetField("_dmd", "1")
-		form.SetField("_ipg", "200")
+			search.GetContext().Infof("Submitting form")
+			page = conn.SubmitForm(form)
+			search.GetContext().Infof("Form Submitted")
+			//page.SaveToFile("./output/auctions-" + search.term + ".html")
 
-		this.GetContext().Infof("Submitting form")
-		page = conn.SubmitForm(form)
-		this.GetContext().Infof("Form Submitted")
-		//page.SaveToFile("./output/auctions-" + this.term + ".html")
+			// Only look in search results not related items
+			results := page.ById("ResultSetItems")
 
-		// Only look in search results not related items
-		results := page.ById("ResultSetItems")
+			auctions := results.AllByClass("sresult")
 
-		auctions := results.AllByClass("sresult")
+			count := 0
 
-		count := 0
+			search.GetContext().Infof("Looking at auctions")
+			for _, result := range auctions {
 
-		this.GetContext().Infof("Looking at auctions")
-		for _, result := range auctions {
+				listingId := result.GetAttribute("listingid")
 
-			listingId := result.GetAttribute("listingid")
+				lnk := result.ByClass("img imgWr2")
+				link := lnk.GetAttribute("href")
 
-			lnk := result.ByClass("img imgWr2")
-			link := lnk.GetAttribute("href")
+				img := lnk.ByTag("img")
+				imgLink := img.GetAttribute("src")
 
-			img := lnk.ByTag("img")
-			imgLink := img.GetAttribute("src")
+				desc := img.GetAttribute("alt")
 
-			desc := img.GetAttribute("alt")
+				prc := result.ByClass("lvprice prc").ByClass("bold")
+				currency := prc.ByTag("b").GetContent()
 
-			prc := result.ByClass("lvprice prc").ByClass("bold")
-			currency := prc.ByTag("b").GetContent()
+				prcStr := util.SanitizeNum(prc.GetContent())
+				price, err := strconv.ParseFloat(prcStr, 64)
 
-			prcStr := util.SanitizeNum(prc.GetContent())
-			price, err := strconv.ParseFloat(prcStr, 64)
-
-			if err != nil {
-				this.GetContext().Errorf("Error getting item price %s ", err.Error())
-			}
-
-			e := pipeline.EbayItem{}
-
-			// EndingTime
-			endingTime := result.ByClass("timeMs")
-
-			if endingTime != nil {
-				this.GetContext().Infof("endingTime ok")
-				timems := endingTime.GetAttribute("timems")
-				timeStr := util.SanitizeNum(timems)
-
-				timeMillis, timeErr := strconv.ParseInt(timeStr, 10, 64)
-
-				if timeErr != nil {
-					this.GetContext().Errorf("Error converting ending time", timeErr.Error())
-				} else {
-					millis := time.Duration(timeMillis)
-					expiry := startTime.Add(time.Millisecond * millis)
-					e.ExpiryDate = expiry
+				if err != nil {
+					search.GetContext().Errorf("Error getting item price %s ", err.Error())
 				}
+
+				e := pipeline.EbayItem{}
+
+				// EndingTime
+				endingTime := result.ByClass("timeMs")
+
+				if endingTime != nil {
+					search.GetContext().Infof("endingTime ok")
+					timems := endingTime.GetAttribute("timems")
+					timeStr := util.SanitizeNum(timems)
+
+					timeMillis, timeErr := strconv.ParseInt(timeStr, 10, 64)
+
+					if timeErr != nil {
+						search.GetContext().Errorf("Error converting ending time", timeErr.Error())
+					} else {
+						millis := time.Duration(timeMillis)
+						expiry := startTime.Add(time.Millisecond * millis)
+						e.ExpiryDate = expiry
+					}
+				}
+
+				e.Description = desc
+				e.ListingId = listingId
+				e.ImageUrl = imgLink
+				e.Currency = currency
+				e.Url = link
+				e.Price = price
+				e.Tier = search.Tier
+
+				search.GetContext().Infof("Search found ", e)
+				search.Out <- e
+				search.GetContext().Infof("Search passed on ", e)
+				count++
 			}
-
-			e.Description = desc
-			e.ListingId = listingId
-			e.ImageUrl = imgLink
-			e.Currency = currency
-			e.Url = link
-			e.Price = price
-			e.Tier = this.Tier
-
-			this.GetContext().Infof("Search found ", e)
-			this.Out <- e
-
-			count++
+			search.GetContext().Infof("searchStage::", search.term, " found ", count, " items")
 		}
-		this.GetContext().Infof("searchStage::", this.term, " found ", count, " items")
+
 	} else {
-		this.GetContext().Infof("Failed to get http client")
+		search.GetContext().Infof("Failed to get http client")
 	}
 }
 
-func (this *SearchStage) HandleIn() {
-	this.GetContext().Infof("About to borrow a client")
+func (search *SearchStage) HandleIn() {
+	search.GetContext().Infof("About to borrow a client")
 
 	// Wait up to 10 seconds for a client
-	cl := this.httpPool.Borrow(time.Second * 10)
+	cl := search.httpPool.BorrowWait()
 	defer func() {
 		e := recover()
 		if e != nil {
-			this.GetContext().Errorf("Hit an error in search stage %s", e)
+			search.GetContext().Errorf("Hit an error in search stage %s", e)
 
 		}
 		if cl != nil {
-			this.GetContext().Infof("About to return client")
-			this.httpPool.Return(cl)
-			this.GetContext().Infof("Client returned")
+			search.GetContext().Infof("About to return client")
+			search.httpPool.Return(cl)
+			search.GetContext().Infof("Client returned")
 		} else {
-			this.GetContext().Infof("Client Borrowed was nil")
+			search.GetContext().Infof("Client Borrowed was nil")
 		}
-		this.wg.Done()
+		search.wg.Done()
 
 	}()
 
 	if cl != nil {
 		client := cl.(*http.Client)
 
-		this.GetContext().Infof("Client Borrowed")
-		this.MakeRequest(client)
-		this.GetContext().Infof("Request completed normally")
+		search.GetContext().Infof("Client Borrowed")
+		search.MakeRequest(client)
+		search.GetContext().Infof("Request completed normally")
 	} else {
-		this.GetContext().Infof("Failed to borrow a http client, received nil instead")
+		search.GetContext().Infof("Failed to borrow a http client, received nil instead")
 	}
 
 }
 
-func (this *SearchStage) Run() {
-	this.HandleIn()
+func (search *SearchStage) Run() {
+	search.HandleIn()
 }

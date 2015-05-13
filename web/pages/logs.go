@@ -18,7 +18,7 @@ func init() {
 	http.HandleFunc("/admin/logs", logsHandler)
 }
 
-const recordsPerPage = 5
+const recordsPerPage = 20
 
 func logsHandler(w http.ResponseWriter, r *http.Request) {
 

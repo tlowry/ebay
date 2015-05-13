@@ -19,14 +19,14 @@ type TierSearch struct {
 func NewTierSearch(conf *util.TierConf, ctx appengine.Context) *TierSearch {
 	ret := TierSearch{}
 	ret.conf = conf
-	ret.pipe = pipeline.NewPipeline()
+	ret.pipe = pipeline.NewPipeline(ctx)
 	ret.ctx = ctx
 	return &ret
 }
 
 func (ts *TierSearch) RunSearch() {
 	searchGroup := pipeline.NewStageGroup()
-	pool := util.NewPool(6)
+	pool := util.NewPool(6, ts.ctx)
 	pool.MakeFunc = func() interface{} {
 		cl := urlfetch.Client(ts.ctx)
 		return cl

@@ -6,7 +6,6 @@ import (
 	"github.com/jbrukh/bayesian"
 	"github.com/tlowry/ebay/pipeline"
 	"github.com/tlowry/ebay/util"
-	"log"
 	"strings"
 )
 
@@ -27,6 +26,22 @@ func (fs *FilterStage) Init() {
 	fs.Stage.Init()
 }
 
+func (fs FilterStage) checkExists(item *pipeline.EbayItem) bool {
+
+	fs.GetContext().Infof("Starting check")
+	q := datastore.NewQuery("EbayItem").Filter("ListingId =", item.ListingId).Limit(1)
+	fs.GetContext().Infof("Query ready")
+	res := q.Run(fs.GetContext())
+	fs.GetContext().Infof("Query complete")
+
+	var oldItem *pipeline.EbayItem = nil
+	res.Next(oldItem)
+	fs.GetContext().Infof("result acquired ", oldItem)
+
+	return oldItem != nil
+
+}
+
 func (fs *FilterStage) HandleIn() {
 
 	const (
@@ -34,18 +49,14 @@ func (fs *FilterStage) HandleIn() {
 		UnWanted bayesian.Class = "UnWanted"
 	)
 	defer close(fs.Out)
-	classifier, err := bayesian.NewClassifierFromFile("files/gfx.ebay.classifier")
+
+	ctx := fs.GetContext()
+	classifier, err := bayesian.NewClassifierFromFile("conf/gfx.ebay.classifier")
 	if err == nil {
 		for item := range fs.In {
-			log.Println("filter recvd ", item)
+			ctx.Infof("filter recvd ", item)
 
-			q := datastore.NewQuery("EbayItem").Filter("ListingId =", item.ListingId).Limit(1)
-			res := q.Run(fs.GetContext())
-
-			var oldItem *pipeline.EbayItem
-			res.Next(oldItem)
-
-			if oldItem != nil {
+			if true || fs.checkExists(&item) {
 				descWords := strings.Split(item.Description, " ")
 
 				_, inx, _ := classifier.ProbScores(descWords)
@@ -53,21 +64,21 @@ func (fs *FilterStage) HandleIn() {
 
 				switch class {
 				case Wanted:
-					log.Println("FilterStage: ", item.Description, " is wanted")
+					ctx.Infof("FilterStage: ", item.Description, " is wanted")
 					fs.Out <- item
 				case UnWanted:
-					log.Println("FilterStage: ", item.Description, " is unwanted")
+					ctx.Infof("FilterStage: ", item.Description, " is unwanted")
 				default:
-					log.Println("FilterStage: ", item.Description, " is unknown class: ", class)
+					ctx.Infof("FilterStage: ", item.Description, " is unknown class: ", class)
 				}
 
 			} else {
-				log.Println("FilterStage: ", item.Description, "  already in db")
+				ctx.Infof("FilterStage: ", item.Description, "  already in db")
 			}
 
 		}
 	} else {
-		log.Println("Failed to open classifer ", err)
+		ctx.Infof("Failed to open classifer ", err)
 	}
 
 }

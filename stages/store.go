@@ -20,9 +20,9 @@ func NewDataStoreStage(ctx appengine.Context) *DataStoreStage {
 	return &ps
 }
 
-func (this *DataStoreStage) Init() {
-	this.SetName("DataStoreStage")
-	this.Stage.Init()
+func (data *DataStoreStage) Init() {
+	data.SetName("DataStoreStage")
+	data.Stage.Init()
 }
 
 func ItemKey(c appengine.Context) *datastore.Key {
@@ -30,15 +30,15 @@ func ItemKey(c appengine.Context) *datastore.Key {
 	return datastore.NewKey(c, "EbayItems", "default_ebay_items", 0, nil)
 }
 
-func (this *DataStoreStage) HandleIn() {
+func (data *DataStoreStage) HandleIn() {
 
-	ctx := this.GetContext()
-	for item := range this.In {
+	ctx := data.GetContext()
+	for item := range data.In {
 
 		ctx.Infof("Persisting ", item.Description)
 
-		key := datastore.NewIncompleteKey(this.context, "EbayItem", ItemKey(this.context))
-		_, err := datastore.Put(this.context, key, &item)
+		key := datastore.NewIncompleteKey(data.context, "EbayItem", ItemKey(data.context))
+		_, err := datastore.Put(data.context, key, &item)
 
 		if err != nil {
 			ctx.Infof("Persisting ", string(err.Error()))
@@ -47,6 +47,6 @@ func (this *DataStoreStage) HandleIn() {
 
 }
 
-func (this *DataStoreStage) Run() {
-	this.HandleIn()
+func (data *DataStoreStage) Run() {
+	data.HandleIn()
 }

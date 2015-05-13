@@ -44,11 +44,11 @@ func wipeHandler(w http.ResponseWriter, r *http.Request) {
 		var eItem pipeline.EbayItem
 		key, err := t.Next(&eItem)
 		if err == datastore.Done {
-			ctx.Infof("Error reading item ", err.Error)
+			ctx.Infof("Datastore query complete %s", err)
 			break
 		}
 		if err != nil {
-			ctx.Infof("Error reading item ", err.Error)
+			ctx.Infof("Error reading item %s", err)
 			break
 		}
 

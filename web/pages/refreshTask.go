@@ -18,22 +18,26 @@ func refreshTask(w http.ResponseWriter, r *http.Request) {
 	var confFile = "conf/hierarchy.json"
 
 	fileBytes, err := ioutil.ReadFile(confFile)
-	util.FailOnErr("failed to read json conf", err)
+	if err == nil {
+		conf := util.TierConf{}
+		err = json.Unmarshal(fileBytes, &conf)
+		if err == nil {
+			ctx.Infof("About to run tiers ")
 
-	conf := util.TierConf{}
-	err = json.Unmarshal(fileBytes, &conf)
-	util.FailOnErr("Failed to parse json", err)
+			if len(conf.Tiers) < 1 {
+				ctx.Errorf("ERROR: no tiers in json")
+			} else {
+				searcher := app.NewTierSearch(&conf, ctx)
 
-	ctx.Infof("About to run tiers ")
-
-	if len(conf.Tiers) < 1 {
-		util.Fail("ERROR: no tiers in json")
+				fmt.Fprint(w, "Refresh task Running now")
+				searcher.RunSearch()
+			}
+		} else {
+			ctx.Errorf("Failed to parse json", err)
+		}
+	} else {
+		ctx.Errorf("failed to read json conf", err)
 	}
-
-	searcher := app.NewTierSearch(&conf, ctx)
-
-	fmt.Fprint(w, "Refresh task Running now")
-	searcher.RunSearch()
 
 }
 
