@@ -42,5 +42,5 @@ func refreshTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func init() {
-	http.HandleFunc("/tasks/refreshmerchants", refreshTask)
+	http.HandleFunc("/task/items/refresh", refreshTask)
 }

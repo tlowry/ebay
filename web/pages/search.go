@@ -36,16 +36,12 @@ func search(w http.ResponseWriter, r *http.Request) {
 	now := time.Now()
 
 	q := datastore.NewQuery("EbayItem")
-	var items []pipeline.EbayItem
-	_, err := q.GetAll(ctx, &items)
+	it := q.Run(ctx)
 
-	if err != nil {
-		ctx.Infof("Error in query: ", err.Error())
-	}
-
+	var item pipeline.EbayItem
+	var err error
 	count := 0
-
-	for _, item := range items {
+	for _, err = it.Next(&item); err == nil; _, err = it.Next(&item) {
 
 		ctx.Infof("Rendering ", item)
 		seconds := ""
@@ -58,9 +54,15 @@ func search(w http.ResponseWriter, r *http.Request) {
 		text += "<td>" + strconv.FormatFloat(item.Price, 'f', 2, 64) + "</td>"
 		text += "<td>" + item.Description + "</td>"
 		text += "<td>" + seconds + "</td>"
-		text += "<td><a href=\"" + item.Url + "\"><img src=\"" + item.ImageUrl + "\"></a></td>"
+		text += "<td><a href=\"" + item.Url + "\"><img width=\"225\" height=\"225\" src=\"" + item.ImageUrl + "\"></a></td>"
 		text += "</tr>"
 		count++
+	}
+
+	if err == datastore.Done {
+		ctx.Infof("Query completed normally")
+	} else {
+		ctx.Infof("Query ended in error %s after %d items", err.Error(), count)
 	}
 
 	text += "</tbody></table>"

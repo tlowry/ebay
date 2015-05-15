@@ -21,7 +21,7 @@ func NewPipeline(ctx appengine.Context) *Pipeline {
 func (pipe *Pipeline) GetContext() appengine.Context {
 	return pipe.ctx
 }
-func (pipe *Pipeline) AddBack(stage StageIF) {
+func (pipe *Pipeline) AddBack(stage StageIF, bufSize int) {
 	pipe.lock.Lock()
 	stageNum := len(pipe.stages)
 
@@ -34,7 +34,7 @@ func (pipe *Pipeline) AddBack(stage StageIF) {
 		pipe.ctx.Infof("Creating first stage")
 	}
 
-	outChan := make(chan EbayItem)
+	outChan := make(chan EbayItem, bufSize)
 	stage.SetOut(outChan)
 
 	pipe.stages = append(pipe.stages, stage)
