@@ -4,6 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<link rel="stylesheet" href="files/js/jquery-ui-1.11.4/jquery-ui.css">
+	<link rel="stylesheet" href="files/css/main.css">
 	{{.CSS}}
 	
 	<script src="files/js/jquery-2.1.4.js"></script>
@@ -12,7 +13,9 @@
 	<title>{{.Title}}</title>
 </head>
 <body>
-	{{template "navbar"}}
+	<div id="mainNav">
+		{{template "navbar"}}
+	</div>
 	<div id="heading">{{.Heading}}</div>
 	<div id="content">{{.Content}}</div>
 </body>

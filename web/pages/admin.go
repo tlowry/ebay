@@ -73,10 +73,10 @@ func refreshHandler(w http.ResponseWriter, r *http.Request) {
 	p.Title = "Admin Page"
 
 	if err != nil {
-		p.Content = template.HTML(fmt.Sprintf("Error scheduling wipe task", err.Error()))
+		p.Content = template.HTML(fmt.Sprintf("Error scheduling refresh task", err.Error()))
 
 	} else {
-		p.Content = template.HTML(fmt.Sprintf("Succesfully scheduled wipe task"))
+		p.Content = template.HTML(fmt.Sprintf("Succesfully scheduled refresh task"))
 	}
 
 	// Render the template to the HTTP response.

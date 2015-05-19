@@ -8,6 +8,7 @@ import (
 	"github.com/tlowry/grawl/element"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -129,16 +130,48 @@ func (search *SearchStage) parsePage(page *element.Page) {
 		desc := img.GetAttribute("alt")
 
 		prc := result.ByClass("lvprice prc").ByClass("bold")
-		currency := prc.ByTag("b").GetContent()
-
-		prcStr := util.SanitizeNum(prc.GetContent())
-		price, err := strconv.ParseFloat(prcStr, 64)
-
-		if err != nil {
-			search.GetContext().Errorf("Error getting item price %s ", err.Error())
-		}
+		search.GetContext().Infof("%p ", prc)
 
 		e := pipeline.EbayItem{}
+
+		// Strike through/marked down prices
+		if prc == nil {
+			strikePrice := result.ByClass("stk-thr")
+			if strikePrice != nil {
+				currencyAndPrice := strings.Split(strikePrice.GetContent(), " ")
+				if len(currencyAndPrice) > 1 {
+					e.Currency = currencyAndPrice[0]
+					prcStr := util.SanitizeNum(prc.GetContent())
+					price, err := strconv.ParseFloat(prcStr, 64)
+					if err == nil {
+						e.Price = price
+
+					} else {
+						search.GetContext().Errorf("Error getting strikethrough item price %s ", err.Error())
+					}
+				}
+
+			}
+
+		}
+
+		if prc != nil {
+			cElem := prc.ByTag("b")
+			currency := cElem.GetContent()
+			e.Currency = currency
+
+			prcStr := util.SanitizeNum(prc.GetContent())
+			price, err := strconv.ParseFloat(prcStr, 64)
+			if err == nil {
+				e.Price = price
+
+			} else {
+				search.GetContext().Errorf("Error getting item price %s ", err.Error())
+			}
+
+		} else {
+			search.GetContext().Infof("Failed to find price element ", prc)
+		}
 
 		// EndingTime
 		endingTime := result.ByClass("timeMs")
@@ -162,9 +195,8 @@ func (search *SearchStage) parsePage(page *element.Page) {
 		e.Description = desc
 		e.ListingId = listingId
 		e.ImageUrl = imgLink
-		e.Currency = currency
 		e.Url = link
-		e.Price = price
+
 		e.Tier = search.Tier
 
 		search.GetContext().Infof("Search found ", e)
