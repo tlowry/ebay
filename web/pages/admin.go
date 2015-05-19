@@ -56,7 +56,7 @@ func wipeHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Render the template to the HTTP response.
 	if err := tmpl.ExecuteTemplate(w, "page", p); err != nil {
-		ctx.Errorf("Rendering templabbte: %v", err)
+		ctx.Errorf("Rendering template: %v", err)
 	}
 }
 
