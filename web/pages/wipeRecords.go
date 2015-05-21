@@ -33,7 +33,7 @@ func wipeTask(w http.ResponseWriter, r *http.Request) {
 	ctx.Infof("built query")
 	count := 0
 
-	buf := make([]*datastore.Key, 0, 5000)
+	buf := make([]*datastore.Key, 0, 500)
 
 	it := q.Run(ctx)
 	var key *datastore.Key
@@ -46,8 +46,14 @@ func wipeTask(w http.ResponseWriter, r *http.Request) {
 		if err == nil {
 			if key == nil {
 				ctx.Infof("Nil key")
+			} else if len(buf) < cap(buf) {
+				buf = append(buf, key)
+			} else {
+				count = deleteAll(ctx, buf)
+				ctx.Infof("Deleted batch of %d entries", count)
+				buf = make([]*datastore.Key, 0, 500)
 			}
-			buf = append(buf, key)
+
 		} else {
 			running = false
 			if err == datastore.Done {
@@ -65,6 +71,8 @@ func wipeTask(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			ctx.Infof("Failed to delete %", err.Error())
+		} else {
+			ctx.Infof("Deleted remaining %d entries", count)
 		}
 	} else {
 		ctx.Infof("Have no entries to delete")
@@ -72,6 +80,8 @@ func wipeTask(w http.ResponseWriter, r *http.Request) {
 
 	if err == datastore.Done {
 		ctx.Infof("DB wipe completed normally")
+	} else if err == nil {
+		ctx.Infof("DB wipe completed successfully")
 	} else {
 		ctx.Infof("DB wipe failed with error %s", err.Error())
 	}

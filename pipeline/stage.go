@@ -16,6 +16,28 @@ type EbayItem struct {
 	ExpiryDate  time.Time
 }
 
+type Graphics struct {
+	EbayItem
+	socket string
+}
+
+type CPU struct {
+	EbayItem
+	socket string
+	cores  int
+}
+
+type APU struct {
+	Graphics
+	CPU
+}
+
+type System struct {
+	EbayItem
+	graphics []Graphics
+	cpus     []CPU
+}
+
 func (st EbayItem) String() string {
 	return "EbayItem, desc=" + st.Description
 }

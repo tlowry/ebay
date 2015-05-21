@@ -45,9 +45,13 @@ func (fs FilterStage) checkExists(item *pipeline.EbayItem) bool {
 func (fs *FilterStage) HandleIn() {
 
 	const (
-		Wanted   bayesian.Class = "Wanted"
-		UnWanted bayesian.Class = "UnWanted"
+		GFX      bayesian.Class = "gfx"
+		CPU      bayesian.Class = "cpu"
+		APU      bayesian.Class = "apu"
+		System   bayesian.Class = "system"
+		Unwanted bayesian.Class = "unwanted"
 	)
+
 	defer close(fs.Out)
 
 	ctx := fs.GetContext()
@@ -63,11 +67,16 @@ func (fs *FilterStage) HandleIn() {
 				class := classifier.Classes[inx]
 
 				switch class {
-				case Wanted:
-					ctx.Infof("FilterStage: ", item.Description, " is wanted")
+				case GFX:
+					ctx.Infof("FilterStage: ", item.Description, " is a graphics card")
 					fs.Out <- item
-				case UnWanted:
+				case CPU:
+					ctx.Infof("FilterStage: ", item.Description, " is a cpu")
+				case APU:
+					ctx.Infof("FilterStage: ", item.Description, " is an apu")
+				case Unwanted:
 					ctx.Infof("FilterStage: ", item.Description, " is unwanted")
+
 				default:
 					ctx.Infof("FilterStage: ", item.Description, " is unknown class: ", class)
 				}
