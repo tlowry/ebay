@@ -75,7 +75,7 @@ func (search *SearchStage) MakeRequest() *element.Page {
 			form.SetField("_udlo", "")
 			form.SetField("_udhi", "")
 			form.SetField("_ftrt", "901")
-			form.SetField("_ftrv", "2")
+			form.SetField("_ftrv", "4")
 			form.SetField("_sabdlo", "")
 			form.SetField("_sabdhi", "")
 			form.SetField("_samilow", "")
@@ -218,14 +218,14 @@ func (search *SearchStage) MakeAttempts() {
 			ctx.Infof("Error in search attempt %s", err.Error())
 		}
 
-		if search.attempts < 3 {
+		if search.attempts < 2 {
 			search.attempts++
 		}
 	}()
 
 	success := false
 
-	for success == false && search.attempts < 3 {
+	for success == false && search.attempts < 2 {
 		page := search.MakeRequest()
 		search.GetContext().Infof("Request attempt %d ok, parsing response", search.attempts)
 		search.parsePage(page)
