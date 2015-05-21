@@ -20,6 +20,7 @@ type SearchStage struct {
 	Tier     string
 	httpPool *util.Pool
 	form     element.Form
+	attempts int
 }
 
 func NewSearchStage(term string, wg *sync.WaitGroup, pool *util.Pool, form element.Form, ctx appengine.Context) *SearchStage {
@@ -30,6 +31,7 @@ func NewSearchStage(term string, wg *sync.WaitGroup, pool *util.Pool, form eleme
 	search.Tier = "0"
 	search.httpPool = pool
 	search.form = form
+	search.attempts = 0
 
 	return &search
 }
@@ -45,10 +47,6 @@ func (search *SearchStage) MakeRequest() *element.Page {
 	search.GetContext().Infof("Client Borrowed")
 
 	defer func() {
-		e := recover()
-		if e != nil {
-			search.GetContext().Errorf("Hit an error in search stage %s", e)
-		}
 		if cl != nil {
 			search.GetContext().Infof("About to return client")
 			search.httpPool.Return(cl)
@@ -208,6 +206,34 @@ func (search *SearchStage) parsePage(page *element.Page) {
 	search.GetContext().Infof("searchStage::", search.term, " found ", count, " items")
 }
 
+func (search *SearchStage) MakeAttempts() {
+
+	ctx := search.GetContext()
+
+	defer func() {
+		e := recover()
+
+		if e != nil {
+			err := e.(error)
+			ctx.Infof("Error in search attempt %s", err.Error())
+		}
+
+		if search.attempts < 3 {
+			search.attempts++
+		}
+	}()
+
+	success := false
+
+	for success == false && search.attempts < 3 {
+		page := search.MakeRequest()
+		search.GetContext().Infof("Request attempt %d ok, parsing response", search.attempts)
+		search.parsePage(page)
+		search.GetContext().Infof("Request attempt %d completed normally", search.attempts)
+		success = true
+	}
+
+}
 func (search *SearchStage) HandleIn() {
 
 	defer func() {
@@ -215,15 +241,8 @@ func (search *SearchStage) HandleIn() {
 		search.wg.Done()
 	}()
 
-	page := search.MakeRequest()
-	if page == nil {
-		search.GetContext().Infof("Search return nil page")
+	search.MakeAttempts()
 
-	} else {
-		search.GetContext().Infof("Request ok, parsing response")
-		search.parsePage(page)
-		search.GetContext().Infof("Request completed normally")
-	}
 }
 
 func (search *SearchStage) Run() {

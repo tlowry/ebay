@@ -55,7 +55,7 @@ func (fs *FilterStage) HandleIn() {
 	defer close(fs.Out)
 
 	ctx := fs.GetContext()
-	classifier, err := bayesian.NewClassifierFromFile("conf/gfx.ebay.classifier")
+	classifier, err := bayesian.NewClassifierFromFile("conf/item.ebay.classifier")
 	if err == nil {
 		for item := range fs.In {
 			ctx.Infof("filter recvd ", item)
@@ -82,7 +82,7 @@ func (fs *FilterStage) HandleIn() {
 				}
 
 			} else {
-				ctx.Infof("FilterStage: ", item.Description, "  already in db")
+				ctx.Infof("FilterStage: ", item.Description, " already in db")
 			}
 
 		}
