@@ -53,14 +53,11 @@ func (data *DataStoreStage) HandleIn() {
 		key := datastore.NewIncompleteKey(data.context, "EbayItem", ItemKey(data.context))
 		keyBuf = append(keyBuf, key)
 		itemBuf = append(itemBuf, item)
-		ctx.Infof("Persist buffering ", item.Description)
 
 		if len(itemBuf) == cap(itemBuf) {
-			ctx.Infof("Persist buffer full, writing to datastore")
 			err := data.writeToStore(&keyBuf, &itemBuf)
-			if err == nil {
-				ctx.Infof("Successfully wrote all buffered items to datastore")
-			} else {
+			if err != nil {
+
 				ctx.Infof("Failed to write buffered items to datastore")
 			}
 		}

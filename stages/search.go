@@ -114,7 +114,6 @@ func (search *SearchStage) parsePage(page *element.Page) {
 
 	count := 0
 
-	search.GetContext().Infof("Looking at auctions")
 	for _, result := range auctions {
 
 		listingId := result.GetAttribute("listingid")
@@ -128,7 +127,6 @@ func (search *SearchStage) parsePage(page *element.Page) {
 		desc := img.GetAttribute("alt")
 
 		prc := result.ByClass("lvprice prc").ByClass("bold")
-		search.GetContext().Infof("%p ", prc)
 
 		e := pipeline.EbayItem{}
 
@@ -175,7 +173,6 @@ func (search *SearchStage) parsePage(page *element.Page) {
 		endingTime := result.ByClass("timeMs")
 
 		if endingTime != nil {
-			search.GetContext().Infof("endingTime ok")
 			timems := endingTime.GetAttribute("timems")
 			timeStr := util.SanitizeNum(timems)
 
@@ -197,7 +194,6 @@ func (search *SearchStage) parsePage(page *element.Page) {
 
 		e.Tier = search.Tier
 
-		search.GetContext().Infof("Search found ", e)
 		search.Out <- e
 		search.GetContext().Infof("Search passed on ", e)
 		count++

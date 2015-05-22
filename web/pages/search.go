@@ -11,8 +11,25 @@ import (
 	"time"
 )
 
+var itemCell *template.Template
+
 func init() {
 	http.HandleFunc("/search", search)
+
+	itemCell, _ = template.New("itemCell").Parse(`
+	<tr id="{{.ListingId">
+		<td>{{.Tier}}</td>
+		<td>{{.Currency}}</td>
+		<td>{{strconv.FormatFloat(.Price, 'f', 2, 64)}}</td>
+		<td>{{.Description}}</td>
+		<td>seconds</td>"
+		<td><a href="{{.Url"><img width="225" height="225" src="{{.ImageUrl}}"></a></td>
+	</tr>
+	`)
+}
+
+func renderItem(w http.ResponseWriter, item pipeline.EbayItem) {
+	itemCell.ExecuteTemplate(w, "itemCell", item)
 }
 
 func search(w http.ResponseWriter, r *http.Request) {
@@ -43,11 +60,13 @@ func search(w http.ResponseWriter, r *http.Request) {
 	count := 0
 	for _, err = it.Next(&item); err == nil; _, err = it.Next(&item) {
 
-		ctx.Infof("Rendering ", item)
-		seconds := ""
+		seconds := "0"
 		if !item.ExpiryDate.IsZero() {
 			seconds = fmt.Sprintf("%f", item.ExpiryDate.Sub(now).Seconds())
+		} else {
+			ctx.Infof("%s is missing an expiry", item.Description)
 		}
+
 		text += "<tr id=\"" + item.ListingId + "\">"
 		text += "<td>" + item.Tier + "</td>"
 		text += "<td>" + item.Currency + "</td>"
@@ -60,7 +79,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err == datastore.Done {
-		ctx.Infof("Query completed normally")
+		ctx.Infof("Query completed normally and rendered %d items", count)
 	} else {
 		ctx.Infof("Query ended in error %s after %d items", err.Error(), count)
 	}
