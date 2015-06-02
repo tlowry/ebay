@@ -3,27 +3,30 @@ package web
 import (
 	"appengine"
 	"appengine/datastore"
-	"fmt"
+	"bytes"
 	"github.com/tlowry/ebay/pipeline"
 	"html/template"
 	"net/http"
-	"strconv"
-	"time"
 )
 
 var itemCell *template.Template
+var itemCellErr error
+var actionPanel = `<div id="actionPanel">
+<button id="reportSelected">A button element</button>
+</div>`
 
 func init() {
 	http.HandleFunc("/search", search)
 
-	itemCell, _ = template.New("itemCell").Parse(`
-	<tr id="{{.ListingId">
+	itemCell, itemCellErr = template.New("itemCell").Parse(`
+	<tr id="">
+		<td><input type="checkbox" name="selectItemBox" class="selectItemBox"></input></td>
 		<td>{{.Tier}}</td>
 		<td>{{.Currency}}</td>
-		<td>{{strconv.FormatFloat(.Price, 'f', 2, 64)}}</td>
+		<td>{{.Price}}</td>
 		<td>{{.Description}}</td>
-		<td>seconds</td>"
-		<td><a href="{{.Url"><img width="225" height="225" src="{{.ImageUrl}}"></a></td>
+		<td>{{.FormatTime}}</td>
+		<td><a href="{{.Url }}"><img width="225" height="225" src="{{.ImageUrl}}"></a></td>
 	</tr>
 	`)
 }
@@ -43,38 +46,36 @@ func search(w http.ResponseWriter, r *http.Request) {
 	p.Heading = "Search Page"
 
 	//Render the table
-	ctx.Infof("Serving search request")
+	if itemCellErr == nil {
+		ctx.Infof("Serving search request normally")
+	} else {
+		ctx.Infof("Serving search request, %s", itemCellErr.Error())
+
+	}
+
 	p.JS = template.HTML(`
 	<script type="text/javascript" src="files/js/jquery.tablesorter.js"></script>
 	<script src="files/js/search.js"></script>
 	`)
-
-	text := "<table id=\"resultsTable\" class=\"tablesorter\"><thead class=\"ui-widget-header\"><th>Tier</th><th>Currency</th><th>Price</th><th>Description</th><th>Expiry</th><th>Image</th></thead><tbody class=\"ui-widget-content\">"
-	now := time.Now()
 
 	q := datastore.NewQuery("EbayItem")
 	it := q.Run(ctx)
 
 	var item pipeline.EbayItem
 	var err error
+
 	count := 0
+
+	text := bytes.NewBufferString(`<table id="resultsTable" class="tablesorter"><thead class="ui-widget-header"><th>Select</th><th>Tier</th><th>Currency</th><th>Price</th><th>Description</th><th>Expiry</th><th>Image</th></thead><tbody class="ui-widget-content">`)
+
 	for _, err = it.Next(&item); err == nil; _, err = it.Next(&item) {
 
-		seconds := "0"
-		if !item.ExpiryDate.IsZero() {
-			seconds = fmt.Sprintf("%f", item.ExpiryDate.Sub(now).Seconds())
-		} else {
-			ctx.Infof("%s is missing an expiry", item.Description)
+		err = itemCell.Execute(text, item)
+
+		if err != nil {
+			ctx.Errorf("Hit error rendering %s", err.Error())
 		}
 
-		text += "<tr id=\"" + item.ListingId + "\">"
-		text += "<td>" + item.Tier + "</td>"
-		text += "<td>" + item.Currency + "</td>"
-		text += "<td>" + strconv.FormatFloat(item.Price, 'f', 2, 64) + "</td>"
-		text += "<td>" + item.Description + "</td>"
-		text += "<td>" + seconds + "</td>"
-		text += "<td><a href=\"" + item.Url + "\"><img width=\"225\" height=\"225\" src=\"" + item.ImageUrl + "\"></a></td>"
-		text += "</tr>"
 		count++
 	}
 
@@ -84,11 +85,13 @@ func search(w http.ResponseWriter, r *http.Request) {
 		ctx.Infof("Query ended in error %s after %d items", err.Error(), count)
 	}
 
-	text += "</tbody></table>"
+	text.WriteString(`</tbody></table>`)
+
+	text.WriteString(actionPanel)
 
 	// DONE
 
-	p.Content = template.HTML(text)
+	p.Content = template.HTML(text.String())
 
 	// Render the template to the HTTP response.
 	if err := tmpl.ExecuteTemplate(w, "page", p); err != nil {

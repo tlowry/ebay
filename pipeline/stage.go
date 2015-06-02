@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"appengine"
+	"strconv"
 	"time"
 )
 
@@ -14,6 +15,11 @@ type EbayItem struct {
 	Price       float64
 	Tier        string
 	ExpiryDate  time.Time
+}
+
+func (item EbayItem) FormatTime() string {
+	priceTxt := strconv.FormatFloat(item.Price, 'f', 2, 64)
+	return priceTxt
 }
 
 type Graphics struct {
