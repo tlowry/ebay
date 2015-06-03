@@ -12,7 +12,7 @@ import (
 var itemCell *template.Template
 var itemCellErr error
 var actionPanel = `<div id="actionPanel">
-<button id="reportSelected">A button element</button>
+<button id="reportSelected">Report List</button>
 </div>`
 
 func init() {
@@ -86,8 +86,8 @@ func search(w http.ResponseWriter, r *http.Request) {
 	text.WriteString(actionPanel)
 
 	dialog := Modal{}
-	dialog.Title = "Hello"
-	dialog.Content = "There"
+	dialog.Title = "Items"
+	dialog.Content = ""
 	dialog.Id = "modalDial"
 	dialog.Render(text)
 
