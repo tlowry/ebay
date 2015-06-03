@@ -19,14 +19,14 @@ func init() {
 	http.HandleFunc("/search", search)
 
 	itemCell, itemCellErr = template.New("itemCell").Parse(`
-	<tr id="">
-		<td><input type="checkbox" name="selectItemBox" class="selectItemBox"></input></td>
-		<td>{{.Tier}}</td>
-		<td>{{.Currency}}</td>
-		<td>{{.Price}}</td>
-		<td>{{.Description}}</td>
-		<td>{{.FormatTime}}</td>
-		<td><a href="{{.Url }}"><img width="225" height="225" src="{{.ImageUrl}}"></a></td>
+	<tr id="{{.ListingId}}" class="itemRow">
+		<td class="tdCheck"><input type="checkbox" name="selectItemBox" class="selectItemBox"></input></td>
+		<td class="tdTier">{{.Tier}}</td>
+		<td class="tdCurrency">{{.Currency}}</td>
+		<td class="tdPrice"> {{.Price}}</td>
+		<td class="tdDesc">{{.Description}}</td>
+		<td class="tdTime">{{.FormatTime}}</td>
+		<td class="tdURL"><a href="{{.Url }}"><img width="225" height="225" src="{{.ImageUrl}}"></a></td>
 	</tr>
 	`)
 }
@@ -39,8 +39,6 @@ func search(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	var tmpl = template.Must(template.ParseGlob("pages/common/*"))
-
 	p := Page{}
 	p.Title = "Search"
 	p.Heading = "Search Page"
@@ -50,7 +48,6 @@ func search(w http.ResponseWriter, r *http.Request) {
 		ctx.Infof("Serving search request normally")
 	} else {
 		ctx.Infof("Serving search request, %s", itemCellErr.Error())
-
 	}
 
 	p.JS = template.HTML(`
@@ -82,19 +79,24 @@ func search(w http.ResponseWriter, r *http.Request) {
 	if err == datastore.Done {
 		ctx.Infof("Query completed normally and rendered %d items", count)
 	} else {
-		ctx.Infof("Query ended in error %s after %d items", err.Error(), count)
+		ctx.Errorf("Query ended in error %s after %d items", err.Error(), count)
 	}
 
 	text.WriteString(`</tbody></table>`)
-
 	text.WriteString(actionPanel)
+
+	dialog := Modal{}
+	dialog.Title = "Hello"
+	dialog.Content = "There"
+	dialog.Id = "modalDial"
+	dialog.Render(text)
 
 	// DONE
 
 	p.Content = template.HTML(text.String())
 
 	// Render the template to the HTTP response.
-	if err := tmpl.ExecuteTemplate(w, "page", p); err != nil {
-		ctx.Errorf("Rendering templabbte: %v", err)
+	if err := p.Render(w); err != nil {
+		ctx.Errorf("Error Rendering Page: %v", err)
 	}
 }

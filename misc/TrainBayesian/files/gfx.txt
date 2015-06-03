@@ -2695,14 +2695,9 @@ Trident KY2-JAX-TVGA94VL VGA VL36C-V1 ISA/PCI Video Card
 GeForce 2 MX400 64MB AGP VGA Video Card Tested FREE SHIPPING
 MSI N210-MD512D3H 512 MB DDR3 SDRAM - PCI Express 2.0 x16- Low profile
 NEW OEM DELL Inspiron 8500 8600 D800 M60 Graphic Card nVidia FX5200 32MB M6688
-CREATIVE LABS 70SB157000000 SOUND BLASTER AUDIGY FX PCIE
-Westell 4369-32 REMOTE ALIGNED DST
-Niles C5-VGA CAT-5 VGA Transformer
-G.SKILL Ares (2 x 4GB) DDR3 SDRAM DDR3 1600 (PC3 12800) - Fast Ship!
-Blackmagic Intensity Pro PCIe video capture card HDMI + Analogue (Mac & Win)
-AudioCodes IPM260A/30/NoSpan/H100/MVIP PMB-11 REV. B (TESTED)
-*NEW* HP Compaq Genuine 8GB PC4-2133P-R DDR4 RAM Memory Kit P/N: 726718-B21
-Tripplite Switched PDU 208/230V PDUMH30HVNET
-Mustek A3-2400HS
-Asus G750JW GPU Video Graphics Card w/ Heatsink NVIDIA GTX 2GB 60NB00M0-VG1160
-Berkeley Varitronics Systems Berkeley Gator Stimulus Transmitter 850-870 MHz
+DELL NVIDIA CN-0G0001-44571 128MB AGP GEFORCE VIDEO CARD VGA DVI S-Video
+Genuine Dell HD2400 PCI-E 256MB DVI S-Video Graphics Card YP477 0YP477
+Dell Inspiron 6000 ATI Radeon X300 128 MB Video Graphic Card
+New Dell Inspiron 15.4" 6000 ATI Radeon X300 128 MB Video Graphic Card W5320 GLP
+Dell OEM Inspiron 9300 Graphic Video Card W5373 nVidia 6800 GeForce 256MB Tested
+HP NVidia Geforce 310 DP PCIe x16 Graphics Card 512MB DDR3 RAM Low Profile

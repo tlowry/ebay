@@ -53,14 +53,20 @@ func logsHandler(w http.ResponseWriter, r *http.Request) {
 			c.Errorf("Reading log records: %v", err)
 			break
 		}
+
+		count := 0
 		for _, msg := range rec.AppLogs {
 
 			buf := bytes.NewBufferString("")
 			enc := encoding.Encoding.NewEncoder(encoding.Replacement)
 			enc.Transform(buf.Bytes(), []byte(msg.Message), false)
 			msg.Message = buf.String()
+			count++
 		}
-		data.Records = append(data.Records, rec)
+		if count > 0 {
+			data.Records = append(data.Records, rec)
+		}
+
 		if i == recordsPerPage-1 {
 			data.Offset = base64.URLEncoding.EncodeToString(rec.Offset)
 		}
@@ -77,8 +83,10 @@ func logsHandler(w http.ResponseWriter, r *http.Request) {
 	page := Page{}
 	page.Content = template.HTML(string(buf.Bytes()))
 
-	var pageTempl = template.Must(template.ParseGlob("pages/common/*"))
-	pageTempl.ExecuteTemplate(w, "page", page)
+	err := page.Render(w)
+	if err != nil {
+		c.Infof("Error Rendering Page %s", err.Error())
+	}
 
 }
 

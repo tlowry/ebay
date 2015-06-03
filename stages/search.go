@@ -80,7 +80,7 @@ func (search *SearchStage) MakeRequest() *element.Page {
 			form.SetField("_sabdhi", "")
 			form.SetField("_samilow", "")
 			form.SetField("_samihi", "")
-			form.SetField("_sadis", "10")
+			form.SetField("_sadis", "2000")
 			form.SetField("_fpos", "")
 			form.SetField("LH_Time", "1")
 			form.SetField("LH_SALE_CURRENCY", "0")

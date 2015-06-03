@@ -19,8 +19,6 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	var tmpl = template.Must(template.ParseGlob("pages/common/*"))
-
 	p := Page{}
 	p.Title = "Admin Page"
 	p.Content = `
@@ -30,8 +28,8 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 	<a href="https://console.developers.google.com">Console</a>
 	`
 	// Render the template to the HTTP response.
-	if err := tmpl.ExecuteTemplate(w, "page", p); err != nil {
-		c.Errorf("Rendering template: %v", err)
+	if err := p.Render(w); err != nil {
+		c.Errorf("Problem Rendering Page: %v", err)
 	}
 }
 
@@ -41,8 +39,6 @@ func wipeHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	t := taskqueue.NewPOSTTask("/task/items/wipe", url.Values{})
 	_, err := taskqueue.Add(ctx, t, "")
-
-	var tmpl = template.Must(template.ParseGlob("pages/common/*"))
 
 	p := Page{}
 	p.Title = "Admin Page"
@@ -55,8 +51,8 @@ func wipeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Render the template to the HTTP response.
-	if err := tmpl.ExecuteTemplate(w, "page", p); err != nil {
-		ctx.Errorf("Rendering template: %v", err)
+	if err := p.Render(w); err != nil {
+		ctx.Errorf("Error Rendering template: %v", err)
 	}
 }
 
@@ -66,8 +62,6 @@ func refreshHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	t := taskqueue.NewPOSTTask("/task/items/refresh", url.Values{})
 	_, err := taskqueue.Add(ctx, t, "")
-
-	var tmpl = template.Must(template.ParseGlob("pages/common/*"))
 
 	p := Page{}
 	p.Title = "Admin Page"
@@ -80,7 +74,7 @@ func refreshHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Render the template to the HTTP response.
-	if err := tmpl.ExecuteTemplate(w, "page", p); err != nil {
-		ctx.Errorf("Rendering template: %v", err)
+	if err := p.Render(w); err != nil {
+		ctx.Errorf("Error Rendering template: %v", err)
 	}
 }

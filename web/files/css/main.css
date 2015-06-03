@@ -1,3 +1,7 @@
 .navbar li {
     display: inline;
 }
+
+.modal{
+	display: none;
+}
