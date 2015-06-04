@@ -33,7 +33,6 @@ func ItemKey(c appengine.Context) *datastore.Key {
 func (data *DataStoreStage) writeToStore(keys *[]*datastore.Key, items *[]pipeline.EbayItem) error {
 
 	_, err := datastore.PutMulti(data.context, *keys, *items)
-	//_, err := datastore.Put(data.context, key, &item)
 
 	*keys = make([]*datastore.Key, 0, 500)
 	*items = make([]pipeline.EbayItem, 0, 500)
@@ -48,6 +47,7 @@ func (data *DataStoreStage) HandleIn() {
 	keyBuf := make([]*datastore.Key, 0, 500)
 	itemBuf := make([]pipeline.EbayItem, 0, 500)
 
+	count := 0
 	for item := range data.In {
 
 		key := datastore.NewIncompleteKey(data.context, "EbayItem", ItemKey(data.context))
@@ -57,15 +57,18 @@ func (data *DataStoreStage) HandleIn() {
 		if len(itemBuf) == cap(itemBuf) {
 			err := data.writeToStore(&keyBuf, &itemBuf)
 			if err != nil {
-
 				ctx.Infof("Failed to write buffered items to datastore")
 			}
 		}
 
+		count++
+
 	}
 
 	if len(keyBuf) > 0 {
+
 		err := data.writeToStore(&keyBuf, &itemBuf)
+		count += len(keyBuf)
 		if err == nil {
 			ctx.Infof("Successfully wrote leftover items to datastore")
 		} else {
@@ -74,6 +77,8 @@ func (data *DataStoreStage) HandleIn() {
 	} else {
 		ctx.Infof("No leftover keys in buffer")
 	}
+
+	ctx.Infof("Received %d items to store in total", count)
 
 }
 

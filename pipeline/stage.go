@@ -18,8 +18,8 @@ type EbayItem struct {
 }
 
 func (item EbayItem) FormatTime() string {
-	priceTxt := strconv.FormatFloat(item.Price, 'f', 2, 64)
-	return priceTxt
+	time := strconv.FormatInt(item.ExpiryDate.Unix(), 10)
+	return time
 }
 
 type Graphics struct {

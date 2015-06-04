@@ -12,6 +12,7 @@ import (
 var itemCell *template.Template
 var itemCellErr error
 var actionPanel = `<div id="actionPanel">
+<button id="selectAll">Select All</button>
 <button id="reportSelected">Report List</button>
 </div>`
 

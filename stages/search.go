@@ -52,7 +52,7 @@ func (search *SearchStage) MakeRequest() *element.Page {
 			search.httpPool.Return(cl)
 			search.GetContext().Infof("Client returned")
 		} else {
-			search.GetContext().Infof("Client Borrowed was nil")
+			search.GetContext().Errorf("Client Borrowed was nil")
 		}
 	}()
 
@@ -195,7 +195,6 @@ func (search *SearchStage) parsePage(page *element.Page) {
 		e.Tier = search.Tier
 
 		search.Out <- e
-		search.GetContext().Infof("Search passed on ", e)
 		count++
 	}
 

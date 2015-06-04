@@ -42,12 +42,14 @@ func (fs *FilterStage) HandleIn() {
 
 	if err == nil {
 		seen := make(map[string]bool)
-
+		count := 0
+		dupeCount := 0
+		wantedCount := 0
 		for item := range fs.In {
+			count++
 
 			if seen[item.ListingId] {
-				ctx.Infof("FilterStage: ", item.ListingId, " already in db")
-
+				dupeCount++
 			} else {
 				seen[item.ListingId] = true
 				descWords := strings.Split(item.Description, " ")
@@ -57,8 +59,8 @@ func (fs *FilterStage) HandleIn() {
 
 				switch class {
 				case GFX:
-					ctx.Infof("FilterStage: ", item.Description, " is a graphics card")
 					fs.Out <- item
+					wantedCount++
 				case CPU:
 					ctx.Infof("FilterStage: ", item.Description, " is a cpu")
 				case APU:
@@ -66,13 +68,14 @@ func (fs *FilterStage) HandleIn() {
 				case System:
 					ctx.Infof("FilterStage: ", item.Description, " is a system")
 				case Unwanted:
-					ctx.Infof("FilterStage: ", item.Description, " is unwanted")
+					//ctx.Infof("FilterStage: ", item.Description, " is unwanted")
 				default:
 					ctx.Infof("FilterStage: ", item.Description, " is unknown class: ", class)
 				}
 			}
 
 		}
+		ctx.Infof("Filter recv %d total %d dupe and %d wanted items", count, dupeCount, wantedCount)
 	} else {
 		ctx.Infof("Failed to open classifer ", err)
 	}

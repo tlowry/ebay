@@ -3,6 +3,7 @@ package app
 import (
 	"appengine"
 	"appengine/urlfetch"
+	"bytes"
 	"github.com/tlowry/ebay/pipeline"
 	"github.com/tlowry/ebay/stages"
 	"github.com/tlowry/ebay/util"
@@ -40,6 +41,7 @@ func (ts *TierSearch) RunSearch() {
 	if form == nil {
 		ts.ctx.Infof("Failed to parse form")
 	} else {
+
 		searchGroup := pipeline.NewStageGroup()
 		pool := util.NewPool(8, ts.ctx)
 		pool.MakeFunc = func() interface{} {
@@ -50,14 +52,20 @@ func (ts *TierSearch) RunSearch() {
 
 		}
 		var wg sync.WaitGroup
-		for i, tier := range ts.conf.Tiers {
-			for _, item := range tier {
-				wg.Add(1)
 
-				srch := stages.NewSearchStage(item, &wg, pool, *form, ts.ctx)
-				srch.Tier = strconv.Itoa(i)
-				searchGroup.AddInstance(srch)
+		for i, tier := range ts.conf.Tiers {
+
+			itemTier := bytes.NewBufferString("")
+			for _, item := range tier {
+				itemTier.WriteString(item)
+				itemTier.WriteString(" ")
 			}
+
+			wg.Add(1)
+
+			srch := stages.NewSearchStage(itemTier.String(), &wg, pool, *form, ts.ctx)
+			srch.Tier = strconv.Itoa(i)
+			searchGroup.AddInstance(srch)
 		}
 
 		// Add the group of search stages to the pipeline
@@ -66,8 +74,6 @@ func (ts *TierSearch) RunSearch() {
 		// close search>filter chan later
 		ts.ctx.Infof("Creating Filter")
 		filter := stages.NewFilterStage(ts.conf, ts.ctx)
-
-		ts.ctx.Infof("Starting Filter")
 		ts.pipe.AddBack(filter, 50)
 
 		ts.ctx.Infof("Filter Started")
