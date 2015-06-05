@@ -49,18 +49,18 @@ func (ts *TierSearch) RunSearch() {
 			return cl
 		}
 		pool.ReturnFunc = func(item interface{}) {
-
 		}
+
 		var wg sync.WaitGroup
 
 		for i, tier := range ts.conf.Tiers {
 
 			itemTier := bytes.NewBufferString("")
 			for _, item := range tier {
+				itemTier.WriteString("\"")
 				itemTier.WriteString(item)
-				itemTier.WriteString(" ")
+				itemTier.WriteString("\"")
 			}
-
 			wg.Add(1)
 
 			srch := stages.NewSearchStage(itemTier.String(), &wg, pool, *form, ts.ctx)

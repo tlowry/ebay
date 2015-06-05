@@ -14,6 +14,8 @@ type TierConf struct {
 func SanitizeNum(str string) string {
 	ret := strings.Replace(str, ",", "", -1)
 	ret = strings.Replace(ret, " ", "", -1)
+	ret = strings.Replace(ret, "\t", "", -1)
+	ret = strings.Replace(ret, "\n", "", -1)
 	return ret
 }
 

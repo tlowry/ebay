@@ -62,22 +62,22 @@ func (fs *FilterStage) HandleIn() {
 					fs.Out <- item
 					wantedCount++
 				case CPU:
-					ctx.Infof("FilterStage: ", item.Description, " is a cpu")
+					//ctx.Infof("FilterStage: %s is a cpu", item.Description)
 				case APU:
-					ctx.Infof("FilterStage: ", item.Description, " is an apu")
+					//ctx.Infof("FilterStage: %s is an apu", item.Description)
 				case System:
-					ctx.Infof("FilterStage: ", item.Description, " is a system")
+					//ctx.Infof("FilterStage: %s is a system", item.Description)
 				case Unwanted:
-					//ctx.Infof("FilterStage: ", item.Description, " is unwanted")
+					//ctx.Infof("FilterStage: %s is unwanted", item.Description)
 				default:
-					ctx.Infof("FilterStage: ", item.Description, " is unknown class: ", class)
+					//ctx.Infof("FilterStage: %s is unknown class: %s", item.Description, class)
 				}
 			}
 
 		}
 		ctx.Infof("Filter recv %d total %d dupe and %d wanted items", count, dupeCount, wantedCount)
 	} else {
-		ctx.Infof("Failed to open classifer ", err)
+		ctx.Errorf("Failed to open classifer ", err)
 	}
 
 }

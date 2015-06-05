@@ -105,11 +105,48 @@ func (search *SearchStage) MakeRequest() *element.Page {
 	return page
 }
 
+func (search *SearchStage) parsePrice(page element.Element) (price float64, currency string, err error) {
+	price = 0
+	currency = "€"
+
+	prc := page.ByClass("lvprice prc").ByClass("bold")
+	priceStr := ""
+
+	if prc == nil {
+		// Assume strike through/marked down prices
+		strikePrice := page.ByClass("stk-thr")
+		if strikePrice != nil {
+			currencyAndPrice := strings.Split(strikePrice.GetContent(), " ")
+
+			if len(currencyAndPrice) > 1 {
+				currency = currencyAndPrice[0]
+				priceStr = util.SanitizeNum(prc.GetContent())
+			}
+		}
+
+	} else {
+		cElem := prc.ByTag("b")
+		currency = cElem.GetContent()
+		priceStr = util.SanitizeNum(prc.GetContent())
+	}
+
+	price, err = strconv.ParseFloat(priceStr, 64)
+	if err != nil {
+		search.GetContext().Errorf("Error getting item price %s ", err.Error())
+	}
+
+	return price, currency, err
+}
+
 func (search *SearchStage) parsePage(page *element.Page) {
+
 	// Save the start time on page load to minimise inaccuracy
 	startTime := time.Now()
 	// Only look in search results not related items
+
 	results := page.ById("ResultSetItems")
+
+	// Err here
 	auctions := results.AllByClass("sresult")
 
 	count := 0
@@ -126,47 +163,14 @@ func (search *SearchStage) parsePage(page *element.Page) {
 
 		desc := img.GetAttribute("alt")
 
-		prc := result.ByClass("lvprice prc").ByClass("bold")
-
 		e := pipeline.EbayItem{}
 
-		// Strike through/marked down prices
-		if prc == nil {
-			strikePrice := result.ByClass("stk-thr")
-			if strikePrice != nil {
-				currencyAndPrice := strings.Split(strikePrice.GetContent(), " ")
-				if len(currencyAndPrice) > 1 {
-					e.Currency = currencyAndPrice[0]
-					prcStr := util.SanitizeNum(prc.GetContent())
-					price, err := strconv.ParseFloat(prcStr, 64)
-					if err == nil {
-						e.Price = price
+		var err error
 
-					} else {
-						search.GetContext().Errorf("Error getting strikethrough item price %s ", err.Error())
-					}
-				}
+		e.Price, e.Currency, err = search.parsePrice(result)
 
-			}
-
-		}
-
-		if prc != nil {
-			cElem := prc.ByTag("b")
-			currency := cElem.GetContent()
-			e.Currency = currency
-
-			prcStr := util.SanitizeNum(prc.GetContent())
-			price, err := strconv.ParseFloat(prcStr, 64)
-			if err == nil {
-				e.Price = price
-
-			} else {
-				search.GetContext().Errorf("Error getting item price %s ", err.Error())
-			}
-
-		} else {
-			search.GetContext().Infof("Failed to find price element ", prc)
+		if err != nil {
+			search.GetContext().Errorf("Failed to parse price ", err)
 		}
 
 		// EndingTime
@@ -198,7 +202,7 @@ func (search *SearchStage) parsePage(page *element.Page) {
 		count++
 	}
 
-	search.GetContext().Infof("searchStage::", search.term, " found ", count, " items")
+	search.GetContext().Infof("searchStage::%s found %d items", search.term, count)
 }
 
 func (search *SearchStage) MakeAttempts() {
@@ -210,7 +214,7 @@ func (search *SearchStage) MakeAttempts() {
 
 		if e != nil {
 			err := e.(error)
-			ctx.Infof("Error in search attempt %s", err.Error())
+			ctx.Errorf("Error in search attempt %s", err)
 		}
 
 		if search.attempts < 2 {
@@ -229,6 +233,7 @@ func (search *SearchStage) MakeAttempts() {
 	}
 
 }
+
 func (search *SearchStage) HandleIn() {
 
 	defer func() {

@@ -16,9 +16,6 @@ function findSelected() {
         if (item.length > 0) {
             selected.push($(this))
         }
-
-
-
     });
     return selected
 }
@@ -47,9 +44,6 @@ $(function() {
                 modal: true
             });
         }
-
-
-
 
     });
     // Select All Button
