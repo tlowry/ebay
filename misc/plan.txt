@@ -1,0 +1,22 @@
+Two approaches to finding + filtering items:
+
+1 : Specific Search
+	1. Create list of individual well known items e.g "Radeon R9 290x"
+	2. For each item generate a list of name permutations/mispellings
+	3a. Search ebay for all variants/mispellings with "any words any order" in a single query
+	3b. Search for items with low bids+ending within a few hours
+	4. Filter Results using bayesian + deduper + maybe more
+	
+PROS:
+
+CONS:
+	
+2 : General Search
+	1. Boss thread search Ebay for all items ending within 2hrs and low bids
+	2. Workers sift through pages e.g "request _pgn=2"
+	2. Filter items into type of device e.g gfx/cpu/junk
+	3. Filter all non junk items by identifying them as well known types eg gfx -> "R9 290x"
+	
+PROS:
+
+CONS:

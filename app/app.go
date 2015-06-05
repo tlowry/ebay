@@ -3,7 +3,6 @@ package app
 import (
 	"appengine"
 	"appengine/urlfetch"
-	"bytes"
 	"github.com/tlowry/ebay/pipeline"
 	"github.com/tlowry/ebay/stages"
 	"github.com/tlowry/ebay/util"
@@ -55,17 +54,14 @@ func (ts *TierSearch) RunSearch() {
 
 		for i, tier := range ts.conf.Tiers {
 
-			itemTier := bytes.NewBufferString("")
 			for _, item := range tier {
-				itemTier.WriteString("\"")
-				itemTier.WriteString(item)
-				itemTier.WriteString("\"")
-			}
-			wg.Add(1)
+				wg.Add(1)
 
-			srch := stages.NewSearchStage(itemTier.String(), &wg, pool, *form, ts.ctx)
-			srch.Tier = strconv.Itoa(i)
-			searchGroup.AddInstance(srch)
+				srch := stages.NewSearchStage(item, &wg, pool, *form, ts.ctx)
+				srch.Tier = strconv.Itoa(i)
+				searchGroup.AddInstance(srch)
+			}
+
 		}
 
 		// Add the group of search stages to the pipeline

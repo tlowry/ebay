@@ -69,7 +69,7 @@ func (search *SearchStage) MakeRequest() *element.Page {
 			form.ClearFields()
 
 			form.SetField("_nkw", search.term)
-			form.SetField("_in_kw", "2")
+			form.SetField("_in_kw", "1")
 			form.SetField("_ex_kw", "faulty")
 			form.SetField("_sacat", "58058")
 			form.SetField("_udlo", "")
@@ -93,7 +93,6 @@ func (search *SearchStage) MakeRequest() *element.Page {
 			page = conn.SubmitForm(&form)
 
 			search.GetContext().Infof("Form Submitted")
-			//page.SaveToFile("./output/auctions-" + search.term + ".html")
 
 		} else {
 			search.GetContext().Infof("Borrowed client has invalid type")
@@ -145,61 +144,62 @@ func (search *SearchStage) parsePage(page *element.Page) {
 	// Only look in search results not related items
 
 	results := page.ById("ResultSetItems")
-
-	// Err here
-	auctions := results.AllByClass("sresult")
-
 	count := 0
+	if results != nil {
+		auctions := results.AllByClass("sresult")
 
-	for _, result := range auctions {
+		for _, result := range auctions {
 
-		listingId := result.GetAttribute("listingid")
+			listingId := result.GetAttribute("listingid")
 
-		lnk := result.ByClass("img imgWr2")
-		link := lnk.GetAttribute("href")
+			lnk := result.ByClass("img imgWr2")
+			link := lnk.GetAttribute("href")
 
-		img := lnk.ByTag("img")
-		imgLink := img.GetAttribute("src")
+			img := lnk.ByTag("img")
+			imgLink := img.GetAttribute("src")
 
-		desc := img.GetAttribute("alt")
+			desc := img.GetAttribute("alt")
 
-		e := pipeline.EbayItem{}
+			e := pipeline.EbayItem{}
 
-		var err error
+			var err error
 
-		e.Price, e.Currency, err = search.parsePrice(result)
+			e.Price, e.Currency, err = search.parsePrice(result)
 
-		if err != nil {
-			search.GetContext().Errorf("Failed to parse price ", err)
-		}
-
-		// EndingTime
-		endingTime := result.ByClass("timeMs")
-
-		if endingTime != nil {
-			timems := endingTime.GetAttribute("timems")
-			timeStr := util.SanitizeNum(timems)
-
-			timeMillis, timeErr := strconv.ParseInt(timeStr, 10, 64)
-
-			if timeErr != nil {
-				search.GetContext().Errorf("Error converting ending time", timeErr.Error())
-			} else {
-				millis := time.Duration(timeMillis)
-				expiry := startTime.Add(time.Millisecond * millis)
-				e.ExpiryDate = expiry
+			if err != nil {
+				search.GetContext().Errorf("Failed to parse price ", err)
 			}
+
+			// EndingTime
+			endingTime := result.ByClass("timeMs")
+
+			if endingTime != nil {
+				timems := endingTime.GetAttribute("timems")
+				timeStr := util.SanitizeNum(timems)
+
+				timeMillis, timeErr := strconv.ParseInt(timeStr, 10, 64)
+
+				if timeErr != nil {
+					search.GetContext().Errorf("Error converting ending time", timeErr.Error())
+				} else {
+					millis := time.Duration(timeMillis)
+					expiry := startTime.Add(time.Millisecond * millis)
+					e.ExpiryDate = expiry
+				}
+			}
+
+			e.Description = desc
+			e.ListingId = listingId
+			e.ImageUrl = imgLink
+			e.Url = link
+
+			e.Tier = search.Tier
+
+			search.Out <- e
+			count++
 		}
-
-		e.Description = desc
-		e.ListingId = listingId
-		e.ImageUrl = imgLink
-		e.Url = link
-
-		e.Tier = search.Tier
-
-		search.Out <- e
-		count++
+	} else {
+		search.GetContext().Infof("Found no results for %s", search.term)
 	}
 
 	search.GetContext().Infof("searchStage::%s found %d items", search.term, count)
